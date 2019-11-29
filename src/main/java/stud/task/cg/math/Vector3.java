@@ -83,6 +83,10 @@ public class Vector3 {
         return new Vector3(crd[0]/length, crd[1]/length, crd[2]/length);
     }
 
+    public Vector3 negative() {
+        return new Vector3(-crd[0], -crd[1], -crd[2]);
+    }
+
     public void suppliner(DoubleConsumer ds) {
         for (int i = 0; i < length; i++) {
             ds.accept(crd[i]);

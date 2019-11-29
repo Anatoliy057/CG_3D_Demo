@@ -1,5 +1,8 @@
 package stud.task.cg.math;
 
+import java.util.Arrays;
+import java.util.StringJoiner;
+
 public class Matrix4 {
 
     public final static int length = 4;
@@ -98,5 +101,12 @@ public class Matrix4 {
             }
         }
         return r;
+    }
+
+    @Override
+    public String toString() {
+        return new StringJoiner(", ", Matrix4.class.getSimpleName() + "[", "]")
+                .add("mat=" + Arrays.toString(mat))
+                .toString();
     }
 }

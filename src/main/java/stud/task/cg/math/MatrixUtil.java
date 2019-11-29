@@ -22,14 +22,14 @@ public final class MatrixUtil {
 
     private static Matrix4 trfTo(Matrix4 t, Vector3 v) {
         for (int i = 0; i < Vector3.length; i++) {
-            t.set(Matrix4.length-1, i, v.at(i));
+            t.set(i, Matrix4.length-1, v.at(i));
         }
         return t;
     }
 
     private static Matrix4 trfAdd(Matrix4 t, Vector3 v) {
         for (int i = 0; i < Vector3.length; i++) {
-            t.set(Matrix4.length-1, i, t.get(Matrix4.length-1, i) + v.at(i));
+            t.set(i, Matrix4.length-1, t.get(Matrix4.length-1, i) + v.at(i));
         }
         return t;
     }
@@ -62,6 +62,10 @@ public final class MatrixUtil {
         return s;
     }
 
+    public static Matrix4 rotate(Vector3 v) {
+        return MatrixUtil.rotate(v.getX(), 0).mul(MatrixUtil.rotate(v.getY(), 1).mul(MatrixUtil.rotate(v.getZ(), 2)));
+    }
+
     public static Matrix4 rotate(double angle, int axis) {
         Matrix4 r = Matrix4.one();
         int a1 = (axis + 1) % 3;
@@ -73,5 +77,16 @@ public final class MatrixUtil {
         r.setAt(a2, a2, Math.cos(angle));
 
         return r;
+    }
+
+    public static Matrix4 projection(double fovy, double aspect, double n, double f) {
+        Matrix4 pr = Matrix4.one();
+        double ctgF = 1/Math.tan(fovy/2);
+        pr.set(0, ctgF/aspect);
+        pr.set(1, 1, ctgF);
+        pr.set(2, 2, (f + n)/(f-n));
+        pr.set(2, 3, -2*f*n / (f - n));
+        pr.set(3, 2, 1);
+        return pr;
     }
 }

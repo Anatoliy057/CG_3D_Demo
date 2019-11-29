@@ -1,6 +1,7 @@
 package stud.task.cg.math;
 
 import java.util.Arrays;
+import java.util.Vector;
 import java.util.function.DoubleConsumer;
 
 public class Vector4 {
@@ -11,6 +12,10 @@ public class Vector4 {
 
     public Vector4(double x, double y, double z) {
         this(x, y, z, 1);
+    }
+
+    public Vector4(Vector3 v3) {
+        this(v3.getX(), v3.getY(), v3.getZ());
     }
 
     public Vector4(Vector4 v4) {
@@ -96,7 +101,7 @@ public class Vector4 {
     }
 
     public Vector4 toVertex() {
-        if (crd[3] < 1e-10)
+        if (Math.abs(crd[3]) < 1e-10)
             return new Vector4(
                     crd[0],
                     crd[1],
@@ -110,19 +115,23 @@ public class Vector4 {
             );
     }
 
+    public Vector4 normalize() {
+        return toVertex();
+    }
+
     public Vector3 toVector3() {
-        if (crd[3] < 1e-10)
+        if (Math.abs(crd[3]) < 1e-10) {
             return new Vector3(
                     crd[0],
                     crd[1],
                     crd[2]
             );
-        else
-            return new Vector3(
-                    crd[0] / crd[3],
-                    crd[1] / crd[3],
-                    crd[2] / crd[3]
-            );
+        }
+        return new Vector3(
+                crd[0] / crd[3],
+                crd[1] / crd[3],
+                crd[2] / crd[3]
+        );
     }
 
     @Override
