@@ -13,7 +13,7 @@ public class Cube implements Model {
 
     private Vector4 center;
     private Color cc, cp;
-    private double a;
+    private final double a;
 
     public Cube(Vector4 center, Color c, double a) {
         this.center = center;

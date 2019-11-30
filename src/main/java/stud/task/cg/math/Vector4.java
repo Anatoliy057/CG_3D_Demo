@@ -25,7 +25,7 @@ public class Vector4 {
         }
     }
 
-    Vector4(double x, double y, double z, double w) {
+    public Vector4(double x, double y, double z, double w) {
         crd = new double[length];
         crd[0] = x;
         crd[1] = y;
@@ -84,6 +84,14 @@ public class Vector4 {
                 crd[1] + v.getY(),
                 crd[2] + v.getZ()
         );
+    }
+
+    public double module() {
+        double mX2 = 0;
+        for (int i = 0; i < length; i++) {
+            mX2 += crd[i] * crd[i];
+        }
+        return Math.sqrt(mX2);
     }
 
     public double scalar(Vector4 v) {

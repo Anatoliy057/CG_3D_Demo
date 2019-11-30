@@ -83,6 +83,14 @@ public class Vector3 {
         return new Vector3(crd[0]/length, crd[1]/length, crd[2]/length);
     }
 
+    public double module() {
+        double mX2 = 0;
+        for (int i = 0; i < length; i++) {
+            mX2 += crd[i] * crd[i];
+        }
+        return Math.sqrt(mX2);
+    }
+
     public Vector3 negative() {
         return new Vector3(-crd[0], -crd[1], -crd[2]);
     }

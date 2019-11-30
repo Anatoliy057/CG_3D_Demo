@@ -11,6 +11,7 @@ import java.util.List;
 
 public class Scene {
     public List<Model> models = new ArrayList<>();
+    public List<Light> lights = new ArrayList<>();
 
     public BufferedImage drawScene(ScreenConverter sc, Camera c, TypeVision t) {
         BufferedImage bi = new BufferedImage(sc.getWs(), sc.getHs(), BufferedImage.TYPE_INT_RGB);
@@ -23,14 +24,18 @@ public class Scene {
     public BufferedImage drawScene(BufferedImage bi, ScreenConverter sc, Camera c, TypeVision t) {
         Graphics2D g = (Graphics2D) bi.getGraphics();
         /**/
-        ArrayList<Contour> contours = new ArrayList<>();
+        List<Contour> contours = new ArrayList<>();
+        List<Contour> all = new LinkedList<>();
+        models.forEach(m -> all.addAll(m.getPolygon()));
         switch (t) {
             case POLYGON:
                 for (Model model :
                         models) {
                     for (Contour cont :
                             model.getPolygon()) {
-                        contours.add(Contour.conversion(cont, v -> Math.abs(v.getZ()) <= 1, c::w2c));
+                        Contour newAdd = Contour.conversion(cont, v -> Math.abs(v.getZ()) <= 1, c::w2c);
+                        contours.add(newAdd);
+                        newAdd.setColor(calColor(all, cont, cont.getColor()));
                     }
                 }
                 break;
@@ -44,7 +49,7 @@ public class Scene {
                 }
                 break;
         }
-        contours.sort(Comparator.comparingDouble(Contour::abgZ));
+        contours.sort(Comparator.comparingDouble(Contour::abgZ).reversed());
 
         for (Contour pl :
                 contours) {
@@ -88,5 +93,13 @@ public class Scene {
             g.drawLine(last.getI(), last.getJ(), current.getI(), current.getJ());
             last = current;
         }
+    }
+
+    private Color calColor(List<Contour> list, Contour cont, Color color) {
+        for (Light l :
+                lights) {
+            color = l.lightUp(list, cont, color);
+        }
+        return color;
     }
 }

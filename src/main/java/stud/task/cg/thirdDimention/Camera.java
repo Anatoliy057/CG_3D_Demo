@@ -131,8 +131,8 @@ public class Camera {
     public Vector4 w2c(Vector4 v) {
         return new Vector4(
                 projection.mul(
-                        rotate.mul(
-                                translate.mul(
+                        translate.mul(
+                                rotate.mul(
                                         scale.mul(new Vector4(v))
                                 )
                         )

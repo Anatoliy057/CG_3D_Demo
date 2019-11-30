@@ -28,7 +28,7 @@ public class DrawPanel extends JPanel implements MouseMotionListener, MouseListe
         camera = new Camera(new Vector4(0, 0, 0), 0, 0, Math.PI/2);
         scene = new Scene();
 
-        scene.models.add(new Cube(new Vector4(0, 0, 0), Color.GREEN, Color.BLUE, 3));
+        scene.models.add(new Cube(new Vector4(0, 0, 0), Color.GREEN, Color.BLACK, 4));
         scene.models.add(new Line(
                 new Vector4(0, 0, 0),
                 new Vector4(0, 0, 10),
@@ -44,6 +44,12 @@ public class DrawPanel extends JPanel implements MouseMotionListener, MouseListe
                 new Vector4(10, 0, 0),
                 Color.YELLOW
         ));
+        UniformLight l = new UniformLight(new Vector4(-10, -5, 7), 100);
+        scene.lights.add(l);
+        scene.models.add(l);
+        l = new UniformLight(new Vector4(10, 8, 20), 100);
+        scene.lights.add(l);
+        scene.models.add(l);
         addMouseListener(this);
         addMouseMotionListener(this);
         addKeyListener(this);
