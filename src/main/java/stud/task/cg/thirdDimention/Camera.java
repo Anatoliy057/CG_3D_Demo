@@ -1,13 +1,13 @@
 package stud.task.cg.thirdDimention;
 
-import stud.task.cg.math.Matrix4;
-import stud.task.cg.math.MatrixUtil;
-import stud.task.cg.math.Vector3;
-import stud.task.cg.math.Vector4;
+import stud.task.cg.math.*;
 
 public class Camera {
 
-    private Matrix4 translate, rotate, scale, projection;
+    private MatrixScale scale;
+    private MatrixTransfer translate;
+    private Matrix4 rotate;
+    private Matrix4 projection;
     private Vector4 pos;
     private Vector3 a;
 
@@ -18,27 +18,27 @@ public class Camera {
             f = 200;
 
     public Camera() {
-        translate = Matrix4.one();
-        rotate = Matrix4.one();
-        scale = Matrix4.one();
+        translate = new MatrixTransfer();
+        rotate = IMatrix4.one();
+        scale = new MatrixScale();
         projection = MatrixUtil.projection(fovy, aspect, n, f);
         pos = Vector4.empty();
         a = Vector3.empty();
     }
 
     public Camera(Vector4 v4) {
-        rotate = Matrix4.one();
-        scale = Matrix4.one();
+        rotate = IMatrix4.one();
+        scale = new MatrixScale();
         projection = MatrixUtil.projection(fovy, aspect, n, f);
         a = Vector3.empty();
 
         pos = new Vector4(v4);
-        translate = MatrixUtil.transfer(v4.toVector3());
+        translate = new MatrixTransfer(v4);
     }
 
     public Camera(Vector4 v4, double fovy, double aspect, double n, double f) {
         pos = new Vector4(v4);
-        translate = MatrixUtil.transfer(v4.toVector3());
+        translate = new MatrixTransfer(v4);
 
         projection = MatrixUtil.projection(f, aspect, n, f);
         a = Vector3.empty();
@@ -51,21 +51,21 @@ public class Camera {
 
     public Camera(Vector4 v4, double ax, double ay, double az) {
         pos = new Vector4(v4);
-        translate = MatrixUtil.transfer(v4.toVector3());
+        translate = new MatrixTransfer(v4.toVector3());
         a = new Vector3(ax, ay, az);
         rotate = MatrixUtil.rotate(new Vector3(ax, ay, az));
         projection = MatrixUtil.projection(fovy, aspect, n, f);
 
-        scale = Matrix4.one();
+        scale = new MatrixScale();
     }
 
     public Camera(Vector4 v4, Vector3 a, double fovy, double aspect, double n, double f) {
         pos = new Vector4(v4);
-        translate = MatrixUtil.transfer(v4.toVector3());
+        translate = new MatrixTransfer(v4);
         rotate = MatrixUtil.rotate(a);
         projection = MatrixUtil.projection(fovy, aspect, n, f);
 
-        scale = Matrix4.one();
+        scale = new MatrixScale();
         this.a = new Vector3(a);
 
         this.fovy = fovy;
@@ -87,9 +87,16 @@ public class Camera {
         return pos;
     }
 
+    public void addPos(Vector4 pos) {
+        System.out.println("------------");
+        System.out.println(translate.getVector3());
+        System.out.println(pos);
+        translate = translate.add(pos);
+        System.out.println(translate.getVector3());
+    }
+
     public void setPos(Vector4 pos) {
-        this.pos = new Vector4(pos);
-        updateTranslate();
+        translate = new MatrixTransfer(pos);
     }
 
     public double getFovy() {
@@ -129,23 +136,19 @@ public class Camera {
     }
 
     public Vector4 w2c(Vector4 v) {
-        return new Vector4(
+        return VectorUtil.normalizeToW(new Vector4(
                 projection.mul(
-                        translate.mul(
-                                rotate.mul(
+                        rotate.mul(
+                                translate.mul(
                                         scale.mul(new Vector4(v))
                                 )
                         )
                 )
-        ).normalize();
+        ));
     }
 
     private void updateProjection() {
         projection = MatrixUtil.projection(f, aspect, n, f);
-    }
-
-    private void updateTranslate() {
-        translate = MatrixUtil.transfer(pos.toVector3());
     }
 
     private void updateRotate() {

@@ -1,9 +1,9 @@
 package stud.task.cg.math;
 
 import java.util.Arrays;
-import java.util.function.DoubleConsumer;
+import java.util.function.DoubleFunction;
 
-public class Vector3 {
+public class Vector3 implements Vector {
 
     public final static int length = 3;
 
@@ -30,6 +30,10 @@ public class Vector3 {
         }
     }
 
+    Vector3(double[] crd) {
+        this.crd = crd;
+    }
+
     public static Vector3 empty() {
         return new Vector3(0, 0, 0);
     }
@@ -50,8 +54,19 @@ public class Vector3 {
         return crd[2];
     }
 
+    @Override
+    public double[] toArray() {
+        return Arrays.copyOf(crd, length);
+    }
+
+    @Override
     public double at(int index) {
         return crd[index];
+    }
+
+    @Override
+    public int length() {
+        return length;
     }
 
     public Vector3 mul(double a) {
@@ -62,43 +77,20 @@ public class Vector3 {
                 );
     }
 
-    public Vector3 add(Vector3 v) {
+    public Vector3 add(Vector v) {
         return new Vector3(
-                crd[0] + v.crd[0],
-                crd[1] + v.crd[1],
-                crd[2] + v.crd[2]
+                crd[0] + v.at(1),
+                crd[1] +  v.at(1),
+                crd[2] +  v.at(1)
         );
     }
 
-    public double scalar(Vector3 v) {
-        double scalar = 0;
-        for (int i = 0; i < length; i++) {
-            scalar += crd[i] * v.crd[i];
-        }
-        return scalar;
-    }
-
-    public Vector3 normalization() {
-        double length = Math.sqrt(crd[0] * crd[0] + crd[1] * crd[1] + crd[2] * crd[2]);
-        return new Vector3(crd[0]/length, crd[1]/length, crd[2]/length);
-    }
-
-    public double module() {
-        double mX2 = 0;
-        for (int i = 0; i < length; i++) {
-            mX2 += crd[i] * crd[i];
-        }
-        return Math.sqrt(mX2);
-    }
-
     public Vector3 negative() {
-        return new Vector3(-crd[0], -crd[1], -crd[2]);
+        return new Vector3(VectorUtil.covert(v -> -v, crd));
     }
 
-    public void suppliner(DoubleConsumer ds) {
-        for (int i = 0; i < length; i++) {
-            ds.accept(crd[i]);
-        }
+    public Vector3 convert(DoubleFunction<Double> function) {
+        return new Vector3(VectorUtil.covert(function, crd));
     }
 
     @Override

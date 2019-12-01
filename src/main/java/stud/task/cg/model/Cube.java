@@ -28,6 +28,10 @@ public class Cube implements Model {
         this.a = a;
     }
 
+    public void setCenter(Vector4 center) {
+        this.center = center;
+    }
+
     @Override
     public Collection<Contour> getContour() {
         return createContours(cc);

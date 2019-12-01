@@ -1,14 +1,11 @@
 package stud.task.cg.model;
 
 import stud.task.cg.domain.Contour;
-import stud.task.cg.domain.Vertex;
 import stud.task.cg.math.Vector4;
 
 import java.awt.*;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedList;
 
 public class Line implements Model{
 
@@ -26,4 +23,8 @@ public class Line implements Model{
         return Collections.singleton(new Contour(c, true, start, end));
     }
 
+    @Override
+    public Collection<Contour> getPolygon() {
+        return Collections.emptyList();
+    }
 }

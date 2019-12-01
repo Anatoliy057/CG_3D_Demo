@@ -1,14 +1,17 @@
-package stud.task.cg.thirdDimention;
+package stud.task.cg.light;
 
 import stud.task.cg.domain.Contour;
+import stud.task.cg.math.Vector4;
 
 import java.awt.*;
-import java.util.List;
-
 
 public interface Light {
 
-    Color lightUp(List<Contour> contourList, Contour c, Color color);
+    Color lightUp(Contour c, Color color);
+
+    Vector4 getPos();
+
+    void setPos(Vector4 vector4);
 
     default Color mix(Color src, Color dest, double brightness) {
         Color bck = new Color(src.getRGB());

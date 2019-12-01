@@ -1,10 +1,9 @@
 package stud.task.cg.math;
 
 import java.util.Arrays;
-import java.util.Vector;
-import java.util.function.DoubleConsumer;
+import java.util.function.DoubleFunction;
 
-public class Vector4 {
+public class Vector4 implements Vector {
 
     public final static int length = 4;
 
@@ -33,12 +32,20 @@ public class Vector4 {
         crd[3] = w;
     }
 
+    Vector4(double[] crd) {
+        this.crd = crd;
+    }
+
     public static Vector4 empty() {
         return new Vector4(0, 0, 0);
     }
 
     public static Vector4 one() {
         return new Vector4(1, 1, 1);
+    }
+
+    public static Vector4 nonTransfer(Vector v) {
+        return new Vector4(v.at(0), v.at(1), v.at(2), 0);
     }
 
     public static Vector4 nonTransfer(double x, double y, double z) {
@@ -57,8 +64,18 @@ public class Vector4 {
         return crd[2];
     }
 
+    public double getW() {
+        return crd[3];
+    }
+
+    @Override
     public double at(int index) {
         return crd[index];
+    }
+
+    @Override
+    public int length() {
+        return length;
     }
 
     public Vector4 mul(double a) {
@@ -70,76 +87,34 @@ public class Vector4 {
         );
     }
 
-    public Vector4 add(Vector3 v) {
+    public Vector4 add(Vector v) {
         return new Vector4(
-                crd[0] + v.getX(),
-                crd[1] + v.getY(),
-                crd[2] + v.getZ()
+                crd[0] + v.at(0),
+                crd[1] + v.at(1),
+                crd[2] + v.at(2),
+                crd[3]
         );
     }
 
-    public Vector4 add(Vector4 v) {
-        return new Vector4(
-                crd[0] + v.getX(),
-                crd[1] + v.getY(),
-                crd[2] + v.getZ()
-        );
+    public Vector4 negative() {
+        return new Vector4(VectorUtil.covert(v -> -v, crd));
     }
 
-    public double module() {
-        double mX2 = 0;
-        for (int i = 0; i < length; i++) {
-            mX2 += crd[i] * crd[i];
-        }
-        return Math.sqrt(mX2);
+    public Vector4 convert(DoubleFunction<Double> function) {
+        return new Vector4(VectorUtil.covert(function, crd));
     }
 
-    public double scalar(Vector4 v) {
-        double scalar = 0;
-        for (int i = 0; i < length; i++) {
-            scalar += crd[i] * v.crd[i];
-        }
-        return scalar;
-    }
-
-    public void suppliner(DoubleConsumer ds) {
-        for (int i = 0; i < length; i++) {
-            ds.accept(crd[i]);
-        }
-    }
-
-    public Vector4 toVertex() {
-        if (Math.abs(crd[3]) < 1e-10)
-            return new Vector4(
-                    crd[0],
-                    crd[1],
-                    crd[2]
-            );
-        else
-            return new Vector4(
-                    crd[0] / crd[3],
-                    crd[1] / crd[3],
-                    crd[2] / crd[3]
-            );
-    }
-
-    public Vector4 normalize() {
-        return toVertex();
+    @Override
+    public double[] toArray() {
+        return Arrays.copyOf(crd, length);
     }
 
     public Vector3 toVector3() {
-        if (Math.abs(crd[3]) < 1e-10) {
-            return new Vector3(
-                    crd[0],
-                    crd[1],
-                    crd[2]
-            );
-        }
-        return new Vector3(
-                crd[0] / crd[3],
-                crd[1] / crd[3],
-                crd[2] / crd[3]
-        );
+        return new Vector3(this);
+    }
+
+    public Vector3 toNormalVector3() {
+        return new Vector3(VectorUtil.normalizeToW(this));
     }
 
     @Override
