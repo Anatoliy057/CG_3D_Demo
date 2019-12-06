@@ -1,8 +1,10 @@
 package stud.task.cg.thirdDimention;
 
+import com.sun.javafx.scene.paint.GradientUtils;
+import com.sun.pisces.GradientColorMap;
 import stud.task.cg.domain.Contour;
+import stud.task.cg.domain.Vertex;
 import stud.task.cg.light.Light;
-import stud.task.cg.math.Vector4;
 import stud.task.cg.model.Model;
 
 import java.awt.*;
@@ -32,9 +34,9 @@ public class Scene {
                         models) {
                     for (Contour cont :
                             model.getPolygon()) {
-                        Contour newAdd = Contour.conversion(cont, v -> Math.abs(v.getZ()) <= 1, c::w2c);
+                        cont = calColor(cont);
+                        Contour newAdd = Contour.conversionDeep(cont, v -> Math.abs(v.getZ()) <= 1, c::w2c);
                         contours.add(newAdd);
-                        newAdd.setColor(calColor(cont, cont.getColor()));
                     }
                 }
                 break;
@@ -42,13 +44,13 @@ public class Scene {
                 for (Model model :
                         models) {
                     for (Contour cont :
-                            model.getContour()) {
-                        contours.add(Contour.conversion(cont, v -> Math.abs(v.getZ()) <= 1, c::w2c));
+                            model.getContours()) {
+                        contours.add(Contour.conversionDeep(cont, v -> Math.abs(v.getZ()) <= 1, c::w2c));
                     }
                 }
                 break;
         }
-        contours.sort(Comparator.comparingDouble(Contour::abgZ).reversed());
+        contours.sort(Comparator.comparingDouble(cont -> -cont.getPosition().getZ()));
 
         for (Contour pl :
                 contours) {
@@ -70,9 +72,9 @@ public class Scene {
         int[] x = new int[c.size()];
         int[] y = new int[c.size()];
         int i = 0;
-        for (Vector4 v :
-                c) {
-            ScreenPoint sp = sc.r2s(v.toVector3());
+        for (Vertex v :
+                c.getVertices()) {
+            ScreenPoint sp = sc.r2s(v.getPosition().toVector3());
             x[i] = sp.getI();
             y[i] = sp.getJ();
             i++;
@@ -82,29 +84,40 @@ public class Scene {
         gr.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE);
         gr.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         Polygon polygon = new Polygon(x, y, x.length);
-        gr.setColor(c.getColor());
-        gr.fillPolygon(polygon);
+        gr.setPaint(c.getColor());
+        gr.fill(polygon);
+
        // gr.setColor(Color.RED);
         //gr.drawPolygon(polygon);
+//        ScreenPoint sp = sc.r2s(c.getPosition().toVector3());
+//        gr.setColor(Color.RED);
+//        gr.fillOval(sp.getI(), sp.getJ(), 10, 10);
+//
+//        c.getVertices().forEach( v -> {
+//            ScreenPoint sp2 = sc.r2s(v.getPosition().toVector3());
+//            gr.setColor(Color.BLUE);
+//            gr.fillOval(sp2.getI(), sp2.getJ(), 10, 10);
+//        });
     }
 
     private void drawContour(Graphics g, ScreenConverter sc, Contour c) {
         g.setColor(c.getColor());
         if (c.isEmpty()) return;
-        Iterator<Vector4> it = Contour.getCloseIterator(c);
-        ScreenPoint current, last = sc.r2s(it.next().toVector3());
+        Iterator<Vertex> it = c.iterator();
+        ScreenPoint current, last = sc.r2s(it.next().getPosition().toVector3());
         while (it.hasNext()) {
-            current = sc.r2s(it.next().toVector3());
+            current = sc.r2s(it.next().getPosition().toVector3());
             g.drawLine(last.getI(), last.getJ(), current.getI(), current.getJ());
             last = current;
         }
     }
 
-    private Color calColor(Contour cont, Color color) {
+    private Contour calColor(Contour cont) {
+        Contour copy = Contour.copyOf(cont);
         for (Light l :
                 lights) {
-            color = l.lightUp(cont, color);
+            l.light(copy);
         }
-        return color;
+        return copy;
     }
 }

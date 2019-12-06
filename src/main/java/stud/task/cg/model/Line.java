@@ -1,9 +1,11 @@
 package stud.task.cg.model;
 
 import stud.task.cg.domain.Contour;
+import stud.task.cg.domain.Vertex;
 import stud.task.cg.math.Vector4;
 
 import java.awt.*;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -19,8 +21,11 @@ public class Line implements Model{
     }
 
     @Override
-    public Collection<Contour> getContour() {
-        return Collections.singleton(new Contour(c, true, start, end));
+    public Collection<Contour> getContours() {
+        return Collections.singleton(new Contour(Arrays.asList(
+                new Vertex(start, c),
+                new Vertex(end, c)
+        ), c, false));
     }
 
     @Override

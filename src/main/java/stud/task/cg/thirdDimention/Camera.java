@@ -1,5 +1,6 @@
 package stud.task.cg.thirdDimention;
 
+import stud.task.cg.domain.Vertex;
 import stud.task.cg.math.*;
 
 public class Camera {
@@ -88,11 +89,7 @@ public class Camera {
     }
 
     public void addPos(Vector4 pos) {
-        System.out.println("------------");
-        System.out.println(translate.getVector3());
-        System.out.println(pos);
         translate = translate.add(pos);
-        System.out.println(translate.getVector3());
     }
 
     public void setPos(Vector4 pos) {

@@ -6,10 +6,10 @@ import java.util.Collection;
 
 public interface Model {
 
-    Collection<Contour> getContour();
+    Collection<Contour> getContours();
 
     default Collection<Contour> getPolygon() {
-        return getContour();
+        return getContours();
     }
 
 }

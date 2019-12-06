@@ -5,7 +5,6 @@ import stud.task.cg.light.DiffuseLight;
 import stud.task.cg.light.Light;
 import stud.task.cg.math.Vector3;
 import stud.task.cg.math.Vector4;
-import stud.task.cg.math.VectorUtil;
 import stud.task.cg.model.Cube;
 import stud.task.cg.model.Line;
 import stud.task.cg.model.Sphere;
@@ -30,10 +29,10 @@ public class DrawPanel extends JPanel implements MouseMotionListener, MouseListe
     public DrawPanel() {
         super();
         sc = new ScreenConverter(-2, 2, 4, 4, 500, 500);
-        camera = new Camera(new Vector4(0, 0, -10), 0, 0, Math.PI/2);
+        camera = new Camera(new Vector4(0, 0, 0), 0, 0, Math.PI/2);
         scene = new Scene();
 
-        scene.models.add(new Cube(new Vector4(0, 0, 0), Color.GREEN, Color.WHITE, 4));
+        //scene.models.add(new Cube(new Vector4(0, 0, 0), Color.GREEN, 4));
         scene.models.add(new Line(
                 new Vector4(0, 0, 0),
                 new Vector4(0, 0, 10),
@@ -49,10 +48,10 @@ public class DrawPanel extends JPanel implements MouseMotionListener, MouseListe
                 new Vector4(10, 0, 0),
                 Color.YELLOW
         ));
-        DiffuseLight l = new DiffuseLight(new Vector4(-0, -0, 20), Color.BLUE, 100);
+        DiffuseLight l = new DiffuseLight(new Vector4(-0, -0, 20), Color.BLUE, 100, 1);
         scene.lights.add(l);
         scene.models.add(l);
-        l = new DiffuseLight(new Vector4(10, 0, 20), Color.RED, 100);
+        l = new DiffuseLight(new Vector4(10, 0, 20), Color.RED, 100, 1);
         this.l = l;
         scene.lights.add(l);
         scene.models.add(l);
@@ -141,11 +140,6 @@ public class DrawPanel extends JPanel implements MouseMotionListener, MouseListe
             }
             case  'c' : {
                 cont = !cont;
-                break;
-            }
-            case  'd' : {
-                Vector4 vector4 = l.getPos();
-                l.setPos(vector4.add(new Vector4(0, 0, -1)));
                 break;
             }
         }

@@ -1,5 +1,6 @@
 package stud.task.cg.thirdDimention;
 
+import stud.task.cg.domain.Vertex;
 import stud.task.cg.math.Vector3;
 
 public class ScreenConverter {
@@ -19,6 +20,10 @@ public class ScreenConverter {
         int i = (int)((p.getX() - xr)*ws/wr);
         int j = (int)((yr - p.getY())*hs/hr);
         return new ScreenPoint(i, j);
+    }
+
+    public ScreenPoint r2s(Vertex p) {
+        return r2s(p.getPosition().toVector3());
     }
 
     public double getXr() {

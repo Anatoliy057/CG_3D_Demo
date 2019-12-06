@@ -1,133 +1,123 @@
 package stud.task.cg.model;
 
 import stud.task.cg.domain.Contour;
-import stud.task.cg.math.MatrixUtil;
+import stud.task.cg.domain.Vertex;
 import stud.task.cg.math.Vector4;
 
 import java.awt.*;
-import java.util.Collection;
-import java.util.LinkedList;
+import java.util.*;
 import java.util.List;
 
 public class Cube implements Model {
 
-    private Vector4 center;
-    private Color cc, cp;
-    private final double a;
+    private Vector4 position;
+    private Color color;
 
-    public Cube(Vector4 center, Color c, double a) {
-        this.center = center;
-        cc = cp = c;
-        this.a = a;
+    private List<Contour> contours;
+
+    public Cube(Vector4 position, Color color, double a) {
+        this.position = position;
+        this.color = color;
+        contours = createContours(a/2);
     }
 
-    public Cube(Vector4 center, Color cc, Color cp, double a) {
-        this.center = center;
-        this.cc = cc;
-        this.cp = cp;
-        this.a = a;
+    public Vector4 getPosition() {
+        return position;
     }
 
-    public void setCenter(Vector4 center) {
-        this.center = center;
+    public void setPosition(Vector4 position) {
+        this.position = position;
+    }
+
+    public Color getColor() {
+        return color;
+    }
+
+    public void setColor(Color color) {
+        this.color = color;
+    }
+
+    public void setContours(List<Contour> contours) {
+        this.contours = contours;
     }
 
     @Override
-    public Collection<Contour> getContour() {
-        return createContours(cc);
+    public Collection<Contour> getContours() {
+        return contours;
     }
 
     @Override
     public Collection<Contour> getPolygon() {
-        return createContours(cp);
-    }
-
-    private List<Contour> createContours(Color c) {
-        List<Contour> contours = new LinkedList<>();
-        for (int i = -3; i < 4; i++) {
-            if (i == 0) continue;
-            contours.add(createContour(c, i));
-        }
         return contours;
     }
 
-    private Contour createContour(Color color, int axis) {
-        Contour c = new Contour(color);
-        switch (Math.abs(axis)) {
-            case MatrixUtil.AXIS_X+1: {
-                Vector4 start = new Vector4(
-                        center.getX() + a/2 * Math.signum(axis),
-                        center.getY() - a/2,
-                        center.getZ() - a/2
-                );
-                c.addVertex(start);
-                c.addVertex(new Vector4(
-                        start.getX(),
-                        start.getY() + a,
-                        start.getZ()
+    private List<Contour> createContours(double a) {
+        List<Contour> contours = new LinkedList<>();
+
+        List<Vertex> vertices = new LinkedList<>(Arrays.asList(
+                createVertex(-a, -a, -a),
+                createVertex(a, -a, -a),
+                createVertex(a, -a, a),
+                createVertex(-a, -a, a),
+                createVertex(-a, -a, -a)
+        ));
+        contours.add(new Contour(vertices, color, true));
+
+        vertices = new LinkedList<>(Arrays.asList(
+                createVertex(a, -a, -a),
+                createVertex(a, a, -a),
+                createVertex(a, a, a),
+                createVertex(a, -a, a),
+                createVertex(a, -a, -a)
+        ));
+        contours.add(new Contour(vertices, color, true));
+
+        vertices = new LinkedList<>(Arrays.asList(
+                createVertex(a, a, -a),
+                createVertex(-a, a, -a),
+                createVertex(-a, a, a),
+                createVertex(a, a, a),
+                createVertex(a, a, -a)
+        ));
+        contours.add(new Contour(vertices, color, true));
+
+        vertices = new LinkedList<>(Arrays.asList(
+                createVertex(-a, a, -a),
+                createVertex(-a, -a, -a),
+                createVertex(-a, -a, a),
+                createVertex(-a, a, a),
+                createVertex(-a, a, -a)
+        ));
+        contours.add(new Contour(vertices, color, true));
+
+        vertices = new LinkedList<>(Arrays.asList(
+                createVertex(-a, -a, -a),
+                createVertex(-a, a, -a),
+                createVertex(a, a, -a),
+                createVertex(a, -a, -a),
+                createVertex(-a, -a, -a)
+        ));
+        contours.add(new Contour(vertices, color, true));
+
+        vertices = new LinkedList<>(Arrays.asList(
+                createVertex(-a, -a, a),
+                createVertex(a, -a, a),
+                createVertex(a, a, a),
+                createVertex(-a, a, a),
+                createVertex(-a, -a, a)
                 ));
-                c.addVertex(new Vector4(
-                        start.getX(),
-                        start.getY() + a,
-                        start.getZ() + a
-                ));
-                c.addVertex(new Vector4(
-                        start.getX(),
-                        start.getY(),
-                        start.getZ() + a
-                ));
-                break;
-            }
-            case MatrixUtil.AXIS_Y + 1: {
-                Vector4 start = new Vector4(
-                        center.getX() - a/2,
-                        center.getY() + a/2 * Math.signum(axis),
-                        center.getZ() - a/2
-                );
-                c.addVertex(start);
-                c.addVertex(new Vector4(
-                        start.getX() + a,
-                        start.getY(),
-                        start.getZ()
-                ));
-                c.addVertex(new Vector4(
-                        start.getX() + a,
-                        start.getY(),
-                        start.getZ() + a
-                ));
-                c.addVertex(new Vector4(
-                        start.getX(),
-                        start.getY(),
-                        start.getZ() + a
-                ));
-                break;
-            }
-            case MatrixUtil.AXIS_Z + 1: {
-                Vector4 start = new Vector4(
-                        center.getX() - a/2,
-                        center.getY() - a/2,
-                        center.getZ() + a/2 * Math.signum(axis)
-                );
-                c.addVertex(start);
-                c.addVertex(new Vector4(
-                        start.getX() + a,
-                        start.getY(),
-                        start.getZ()
-                ));
-                c.addVertex(new Vector4(
-                        start.getX() + a,
-                        start.getY() + a,
-                        start.getZ()
-                ));
-                c.addVertex(new Vector4(
-                        start.getX(),
-                        start.getY() + a,
-                        start.getZ()
-                ));
-                break;
-            }
-        }
-        c.close();
-        return c;
+        contours.add(new Contour(vertices, color,true));
+
+        contours.forEach(c -> {
+            c.getVertices().forEach(v -> v.addNormalOfContour(c.getNormal()));
+        });
+
+        contours.forEach(c -> c.getVertices().forEach(Vertex::calNormal));
+
+        return contours;
+    }
+
+    private Vertex createVertex(double x, double y, double z) {
+        return new Vertex(position.add(new Vector4(x, y, z)), color);
     }
 }

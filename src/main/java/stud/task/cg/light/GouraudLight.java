@@ -1,6 +1,7 @@
 package stud.task.cg.light;
 
 import stud.task.cg.domain.Contour;
+import stud.task.cg.domain.Vertex;
 import stud.task.cg.math.Vector3;
 import stud.task.cg.math.Vector4;
 import stud.task.cg.model.Cube;
@@ -11,14 +12,14 @@ import java.util.Collection;
 
 import static stud.task.cg.math.VectorUtil.*;
 
-public class DiffuseLight implements Light, Model {
-
+public class GouraudLight implements Light, Model {
+    
     private Vector4 position;
     private Color color;
     private Cube cube;
     private double radius;
 
-    public DiffuseLight (Vector4 position, Color color, double radius, double a) {
+    public GouraudLight (Vector4 position, Color color, double radius, double a) {
         this.position = new Vector4(position);
         this.color = color;
         this.radius = radius;
@@ -27,13 +28,15 @@ public class DiffuseLight implements Light, Model {
 
     @Override
     public void light(Contour c) {
-        if (c.isEmpty() || !c.isClose()) return;
+        c.getVertices().forEach(this::calColorVertex);
+    }
 
-        Vector3 contourNormal = c.getNormal();
-        Vector4 lengthVector4 = position.add(c.getPosition());
+    private void calColorVertex(Vertex v) {
+        Vector3 vertexNormal = v.getNormal();
+        Vector4 lengthVector4 = position.add(v.getPosition());
         Vector3 lightNormal = normalize(lengthVector4.toVector3());
 
-        double dot = dot(lightNormal, contourNormal);
+        double dot = dot(lightNormal, vertexNormal);
         if (dot <= 0) {
             return;
         }
@@ -42,11 +45,8 @@ public class DiffuseLight implements Light, Model {
         if (length > radius) return;
 
         double ratio = dot * ((Math.pow((radius - length), 2)) / (Math.pow(radius, 2)));
-        Color color = mix(c.getColor(), this.color, ratio);
-        c.setColor(color);
-        c.getVertices().forEach(v -> v.setColor(color));
+        v.setColor(mix(v.getColor(), this.color, ratio));
     }
-
 
     @Override
     public Collection<Contour> getContours() {

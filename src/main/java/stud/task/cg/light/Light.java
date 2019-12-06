@@ -1,23 +1,17 @@
 package stud.task.cg.light;
 
 import stud.task.cg.domain.Contour;
-import stud.task.cg.math.Vector4;
 
 import java.awt.*;
 
 public interface Light {
 
-    Color lightUp(Contour c, Color color);
-
-    Vector4 getPos();
-
-    void setPos(Vector4 vector4);
+    void light(Contour c);
 
     default Color mix(Color src, Color dest, double brightness) {
-        Color bck = new Color(src.getRGB());
-        double r = (bck.getRed() * (1 - brightness) + dest.getRed() * brightness);
-        double g = (bck.getGreen() * (1 - brightness) + dest.getGreen() * brightness);
-        double b =  (bck.getBlue() * (1 - brightness) + dest.getBlue() * brightness);
+        double r = (src.getRed() * (1 - brightness) + dest.getRed() * brightness);
+        double g = (src.getGreen() * (1 - brightness) + dest.getGreen() * brightness);
+        double b =  (src.getBlue() * (1 - brightness) + dest.getBlue() * brightness);
         return new Color((int) r, (int) g, (int) b);
     }
 }

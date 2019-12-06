@@ -2,6 +2,7 @@ package stud.task.cg.model;
 
 
 import stud.task.cg.domain.Contour;
+import stud.task.cg.domain.Vertex;
 import stud.task.cg.math.Vector4;
 
 import java.awt.*;
@@ -12,21 +13,23 @@ public class Sphere implements Model {
 
     private List<List<Vector4>> vertex = new ArrayList<>();
     private float radius;
-    private Color c;
+    private Color color;
     private Vector4 center;
 
-    public Sphere(Color c, int n, int m, float radius, Vector4 center) {
-        this.c = c;
+    private List<Contour> contours;
+
+    public Sphere(Color color, int n, int m, float radius, Vector4 center) {
+        this.color = color;
         this.radius = radius;
         this.center = center;
-        createVertexes(n,m);
+        contours = createContours(n, m);
     }
 
     private void createVertexes(float n, float m) {
         double p;
         double z;
         double a = (Math.PI * 2 / m);
-        for (int i = 0; i <= n; i++) {
+        for (int i = 0; i <= n-1; i++) {
             List<Vector4> l = new LinkedList<>();
             vertex.add(l);
             for (int j = 0; j <= m; j++) {
@@ -42,28 +45,44 @@ public class Sphere implements Model {
     }
 
     @Override
-    public List<Contour> getContour() {
-       return Collections.emptyList();
+    public List<Contour> getContours() {
+       return contours;
     }
 
     @Override
     public Collection<Contour> getPolygon() {
+        return contours;
+    }
+
+    private List<Contour> createContours(float n, float m) {
+        createVertexes(n,m);
         List<Contour> contours = new LinkedList<>();
         for (int i = 0; i < vertex.size()-1; i++) {
             Iterator<Vector4> upIt = vertex.get(i).iterator();
             Iterator<Vector4> downIt = vertex.get(i+1).iterator();
-            Vector4 lastUp, lastDown, curUp, curDown;
+            Vertex lastUp, lastDown, curUp, curDown;
             if (upIt.hasNext()) {
-                lastUp = upIt.next(); lastDown = downIt.next();
+                lastUp = createVertex(upIt.next()); lastDown = createVertex(downIt.next());
             } else break;
             while (downIt.hasNext()) {
-                curUp = upIt.next();
-                curDown = downIt.next();
-                contours.add(new Contour(Arrays.asList(lastUp, lastDown, curDown, curUp, lastUp), c, true));
+                curUp = createVertex(upIt.next());
+                curDown = createVertex(downIt.next());
+                contours.add(new Contour(Arrays.asList(lastDown, curDown, curUp, lastUp, lastDown), color, true));
                 lastDown = curDown;
                 lastUp = curUp;
             }
         }
+
+        contours.forEach(c -> {
+            c.getVertices().forEach(v -> v.addNormalOfContour(c.getNormal()));
+        });
+
+        contours.forEach(c -> c.getVertices().forEach(Vertex::calNormal));
+
         return contours;
+    }
+
+    private Vertex createVertex(Vector4 v) {
+        return new Vertex(new Vector4(v), color);
     }
 }
