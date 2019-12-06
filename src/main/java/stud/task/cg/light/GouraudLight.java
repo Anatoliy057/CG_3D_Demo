@@ -13,7 +13,7 @@ import java.util.Collection;
 import static stud.task.cg.math.VectorUtil.*;
 
 public class GouraudLight implements Light, Model {
-    
+
     private Vector4 position;
     private Color color;
     private Cube cube;
@@ -45,7 +45,7 @@ public class GouraudLight implements Light, Model {
         if (length > radius) return;
 
         double ratio = dot * ((Math.pow((radius - length), 2)) / (Math.pow(radius, 2)));
-        v.setColor(mix(v.getColor(), this.color, ratio));
+        v.setColor(Light.mix(v.getColor(), this.color, ratio));
     }
 
     @Override

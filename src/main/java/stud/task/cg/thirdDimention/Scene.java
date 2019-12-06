@@ -1,10 +1,11 @@
 package stud.task.cg.thirdDimention;
 
-import com.sun.javafx.scene.paint.GradientUtils;
-import com.sun.pisces.GradientColorMap;
 import stud.task.cg.domain.Contour;
 import stud.task.cg.domain.Vertex;
+import stud.task.cg.drawer.DrawerContour;
+import stud.task.cg.drawer.ShadedTriangle;
 import stud.task.cg.light.Light;
+import stud.task.cg.math.Vector4;
 import stud.task.cg.model.Model;
 
 import java.awt.*;
@@ -16,6 +17,8 @@ public class Scene {
     public List<Model> models = new ArrayList<>();
     public List<Light> lights = new ArrayList<>();
 
+    private DrawerContour drawer = new ShadedTriangle();
+
     public BufferedImage drawScene(ScreenConverter sc, Camera c, TypeVision t) {
         BufferedImage bi = new BufferedImage(sc.getWs(), sc.getHs(), BufferedImage.TYPE_INT_RGB);
         Graphics2D g = (Graphics2D) bi.getGraphics();
@@ -25,7 +28,7 @@ public class Scene {
     }
 
     public BufferedImage drawScene(BufferedImage bi, ScreenConverter sc, Camera c, TypeVision t) {
-        Graphics2D g = (Graphics2D) bi.getGraphics();
+        Graphics2D gr = (Graphics2D) bi.getGraphics();
         /**/
         List<Contour> contours = new ArrayList<>();
         switch (t) {
@@ -33,10 +36,14 @@ public class Scene {
                 for (Model model :
                         models) {
                     for (Contour cont :
-                            model.getPolygon()) {
+                            model.getPolygons()) {
                         cont = calColor(cont);
-                        Contour newAdd = Contour.conversionDeep(cont, v -> Math.abs(v.getZ()) <= 1, c::w2c);
-                        contours.add(newAdd);
+                        Contour.conversionDeep(cont,
+                                v -> Math.abs(v.getZ()) <= 1 &&
+                                Math.abs(v.getX()) <= 2 &&
+                                Math.abs(v.getY()) <= 2,
+                                c::w2c)
+                                .ifPresent(contours::add);
                     }
                 }
                 break;
@@ -45,7 +52,17 @@ public class Scene {
                         models) {
                     for (Contour cont :
                             model.getContours()) {
-                        contours.add(Contour.conversionDeep(cont, v -> Math.abs(v.getZ()) <= 1, c::w2c));
+                        cont = calColor(cont);
+                        cont.getVertices().forEach(v -> {
+                            ScreenPoint sp = sc.r2s(c.w2c(v.getPosition()).toVector3());
+                            gr.setColor(v.getColor());
+                            gr.fillOval(sp.getI(), sp.getJ(), 15, 15);
+                            ScreenPoint sp1 = sc.r2s(c.w2c(v.getPosition().add(new Vector4(v.getNormal()))).toVector3());
+                            gr.setColor(Color.RED);
+                            gr.drawLine(sp.getI(), sp.getJ(), sp1.getI(), sp1.getJ());
+                        });
+                       Contour.conversionDeep(cont, v -> Math.abs(v.getZ()) <= 1, c::w2c)
+                                .ifPresent(contours::add);
                     }
                 }
                 break;
@@ -56,10 +73,10 @@ public class Scene {
                 contours) {
             switch (t) {
                 case POLYGON:
-                    drawPolygon(g, sc, pl);
+                    drawPolygon(bi, sc, pl);
                     break;
                 case CONTOUR:
-                    drawContour(g, sc, pl);
+                    //drawContour(gr, sc, pl);
                     break;
             }
         }
@@ -68,42 +85,17 @@ public class Scene {
         return bi;
     }
 
-    private void drawPolygon(Graphics g, ScreenConverter sc, Contour c) {
-        int[] x = new int[c.size()];
-        int[] y = new int[c.size()];
-        int i = 0;
-        for (Vertex v :
-                c.getVertices()) {
-            ScreenPoint sp = sc.r2s(v.getPosition().toVector3());
-            x[i] = sp.getI();
-            y[i] = sp.getJ();
-            i++;
-        }
-        Graphics2D gr = (Graphics2D) g;
-        gr.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
-        gr.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE);
-        gr.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        Polygon polygon = new Polygon(x, y, x.length);
-        gr.setPaint(c.getColor());
-        gr.fill(polygon);
+    private void drawPolygon(BufferedImage bi, ScreenConverter sc, Contour c) {
+        drawer.draw(bi, sc, c);
 
        // gr.setColor(Color.RED);
         //gr.drawPolygon(polygon);
-//        ScreenPoint sp = sc.r2s(c.getPosition().toVector3());
-//        gr.setColor(Color.RED);
-//        gr.fillOval(sp.getI(), sp.getJ(), 10, 10);
-//
-//        c.getVertices().forEach( v -> {
-//            ScreenPoint sp2 = sc.r2s(v.getPosition().toVector3());
-//            gr.setColor(Color.BLUE);
-//            gr.fillOval(sp2.getI(), sp2.getJ(), 10, 10);
-//        });
     }
 
     private void drawContour(Graphics g, ScreenConverter sc, Contour c) {
         g.setColor(c.getColor());
         if (c.isEmpty()) return;
-        Iterator<Vertex> it = c.iterator();
+        Iterator<Vertex> it = c.closeIterator();
         ScreenPoint current, last = sc.r2s(it.next().getPosition().toVector3());
         while (it.hasNext()) {
             current = sc.r2s(it.next().getPosition().toVector3());

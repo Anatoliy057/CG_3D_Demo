@@ -8,7 +8,7 @@ public interface Light {
 
     void light(Contour c);
 
-    default Color mix(Color src, Color dest, double brightness) {
+    static Color mix(Color src, Color dest, double brightness) {
         double r = (src.getRed() * (1 - brightness) + dest.getRed() * brightness);
         double g = (src.getGreen() * (1 - brightness) + dest.getGreen() * brightness);
         double b =  (src.getBlue() * (1 - brightness) + dest.getBlue() * brightness);

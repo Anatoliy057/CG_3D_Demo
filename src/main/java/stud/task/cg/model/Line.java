@@ -2,6 +2,7 @@ package stud.task.cg.model;
 
 import stud.task.cg.domain.Contour;
 import stud.task.cg.domain.Vertex;
+import stud.task.cg.math.Vector3;
 import stud.task.cg.math.Vector4;
 
 import java.awt.*;
@@ -20,6 +21,32 @@ public class Line implements Model{
         this.c = c;
     }
 
+    public Line(Vector4 start, Vector3 vector, Color c) {
+        this(start, start.add(vector), c);
+    }
+
+    @Override
+    public void setPosition(Vector4 v) {
+        Vector3 vector = end.add(start.negative()).toVector3();
+        start = v;
+        end = v.add(vector);
+    }
+
+    @Override
+    public Vector4 getPosition() {
+        return start;
+    }
+
+    @Override
+    public void setColor(Color c) {
+        this.c = c;
+    }
+
+    @Override
+    public Color getColor() {
+        return c;
+    }
+
     @Override
     public Collection<Contour> getContours() {
         return Collections.singleton(new Contour(Arrays.asList(
@@ -29,7 +56,7 @@ public class Line implements Model{
     }
 
     @Override
-    public Collection<Contour> getPolygon() {
+    public Collection<Contour> getPolygons() {
         return Collections.emptyList();
     }
 }

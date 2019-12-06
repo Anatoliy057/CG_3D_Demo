@@ -42,7 +42,7 @@ public class DiffuseLight implements Light, Model {
         if (length > radius) return;
 
         double ratio = dot * ((Math.pow((radius - length), 2)) / (Math.pow(radius, 2)));
-        Color color = mix(c.getColor(), this.color, ratio);
+        Color color = Light.mix(c.getColor(), this.color, ratio);
         c.setColor(color);
         c.getVertices().forEach(v -> v.setColor(color));
     }

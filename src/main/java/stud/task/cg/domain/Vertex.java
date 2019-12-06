@@ -2,12 +2,11 @@ package stud.task.cg.domain;
 
 import stud.task.cg.math.Vector3;
 import stud.task.cg.math.Vector4;
+import stud.task.cg.math.VectorUtil;
 
 import java.awt.*;
-import java.util.LinkedList;
+import java.util.*;
 import java.util.List;
-import java.util.Objects;
-import java.util.StringJoiner;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -42,6 +41,7 @@ public class Vertex {
                 normals) {
             normal = normal.add(v);
         }
+        normal = VectorUtil.normalize(normal);
         normals.clear();
     }
 

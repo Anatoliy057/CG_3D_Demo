@@ -69,17 +69,18 @@ public class Contour implements Iterable<Vertex>  {
     public static Contour conversion(Contour contour, Function<Vertex, Vertex> fun) {
         List<Vertex> vertices = new LinkedList<>();
         contour.forEach(v -> vertices.add(fun.apply(v)));
-        return new Contour(vertices, contour.getColor(), contour.isClose());
+        return new Contour(vertices, contour.getNormal(), contour.getColor(), contour.isClose());
     }
 
-    public static Contour conversion(Contour contour, Predicate<Vertex> p, Function<Vertex, Vertex> fun) {
+    public static Optional<Contour> conversion(Contour contour, Predicate<Vertex> p, Function<Vertex, Vertex> fun) {
         List<Vertex> vertices = new LinkedList<>();
         contour.forEach(v -> {
             Vertex vv = fun.apply(v);
             if (p.test(vv))
                 vertices.add(vv);
         });
-        return new Contour(vertices, contour.getColor(), contour.isClose());
+        if (vertices.isEmpty()) return Optional.empty();
+        return  Optional.of(new Contour(vertices, contour.getNormal(), contour.getColor(), contour.isClose()));
     }
 
     public static Contour conversionDeep(Contour contour, Function<Vector4, Vector4> fun) {
@@ -90,22 +91,15 @@ public class Contour implements Iterable<Vertex>  {
         return new Contour(vertices, contour.getNormal(), contour.getColor(), contour.isClose());
     }
 
-    public static Contour conversionDeep(Contour contour, Predicate<Vector4> p, Function<Vector4, Vector4> fun) {
+    public static Optional<Contour> conversionDeep(Contour contour, Predicate<Vector4> p, Function<Vector4, Vector4> fun) {
         List<Vertex> vertices = new LinkedList<>();
         contour.forEach(v -> {
             Vector4 vv = fun.apply(v.getPosition());
             if (p.test(vv))
                 vertices.add(new Vertex(vv, v.getNormal(), v.getColor()));
         });
-        return new Contour(vertices, contour.getColor(), contour.isClose());
-    }
-
-    public static void toClose(Contour contour) {
-        if (contour.isClose() || contour.size() < 3 || contour.isEmpty())
-            return;
-        List<Vertex> vertices = contour.getVertices();
-        vertices.add(vertices.get(0));
-        contour.setClose(true);
+        if (vertices.isEmpty()) return Optional.empty();
+        return Optional.of(new Contour(vertices, contour.getNormal(), contour.getColor(), contour.isClose() && vertices.size() > 2));
     }
 
     public List<Vertex> getVertices() {
@@ -161,18 +155,22 @@ public class Contour implements Iterable<Vertex>  {
         return vertices.iterator();
     }
 
+    public Iterator<Vertex> closeIterator() {
+        List<Vertex> list = new LinkedList<>(vertices);
+        list.add(vertices.get(0));
+        return list.iterator();
+    }
+
     public void abg() {
         position = Vector4.empty();
-        int size = isClose() ? size()-1 : size();
-        Iterator<Vertex> it = vertices.iterator();
-        for (int i = 0; i < size; i++) {
-            position = position.add(it.next().getPosition());
+        for (Vertex vertex : vertices) {
+            position = position.add(vertex.getPosition());
         }
-        position = position.mul(1 / (double) size);
+        position = position.mul(1 / (double) vertices.size());
     }
 
     public void normal() {
-        if (isEmpty() || size() < 3) {
+        if (!isClose()) {
             normal = Vector3.empty();
             return;
         }
@@ -183,7 +181,7 @@ public class Contour implements Iterable<Vertex>  {
         }
         normal = VectorUtil.normalize(new Vector3(
                 (vs[1].getY() - vs[0].getY()) * (vs[2].getZ() - vs[0].getZ()) - (vs[2].getY() - vs[0].getY()) * (vs[1].getZ() - vs[0].getZ()),
-                (vs[1].getX() - vs[0].getX()) * (vs[2].getZ() - vs[0].getZ()) - (vs[2].getX() - vs[0].getX()) * (vs[1].getZ() - vs[0].getZ()),
+                -(vs[1].getX() - vs[0].getX()) * (vs[2].getZ() - vs[0].getZ()) - (vs[2].getX() - vs[0].getX()) * (vs[1].getZ() - vs[0].getZ()),
                 (vs[1].getX() - vs[0].getX()) * (vs[2].getY() - vs[0].getY()) - (vs[2].getX() - vs[0].getX()) * (vs[1].getY() - vs[0].getY())
         ));
     }

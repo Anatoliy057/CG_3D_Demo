@@ -2,6 +2,7 @@ package stud.task.cg.node;
 
 
 import stud.task.cg.light.DiffuseLight;
+import stud.task.cg.light.GouraudLight;
 import stud.task.cg.light.Light;
 import stud.task.cg.math.Vector3;
 import stud.task.cg.math.Vector4;
@@ -32,8 +33,8 @@ public class DrawPanel extends JPanel implements MouseMotionListener, MouseListe
         camera = new Camera(new Vector4(0, 0, 0), 0, 0, Math.PI/2);
         scene = new Scene();
 
-        //scene.models.add(new Cube(new Vector4(0, 0, 0), Color.GREEN, 4));
-        scene.models.add(new Line(
+        //scene.models.add(new Cube(new Vector4(0, 0, 0), Color.WHITE, 4));
+/*        scene.models.add(new Line(
                 new Vector4(0, 0, 0),
                 new Vector4(0, 0, 10),
                 Color.RED
@@ -47,14 +48,14 @@ public class DrawPanel extends JPanel implements MouseMotionListener, MouseListe
                 new Vector4(0, 0, 0),
                 new Vector4(10, 0, 0),
                 Color.YELLOW
-        ));
-        DiffuseLight l = new DiffuseLight(new Vector4(-0, -0, 20), Color.BLUE, 100, 1);
+        ));*/
+        GouraudLight l = new GouraudLight(new Vector4(-0, -0, 20), Color.BLUE, 100, 1);
         scene.lights.add(l);
-        scene.models.add(l);
-        l = new DiffuseLight(new Vector4(10, 0, 20), Color.RED, 100, 1);
+        //scene.models.add(l);
+        l = new GouraudLight(new Vector4(10, 0, 20), Color.RED, 100, 1);
         this.l = l;
         scene.lights.add(l);
-        scene.models.add(l);
+        //scene.models.add(l);
         scene.models.add(new Sphere(Color.WHITE, 20, 20, 5, new Vector4(0, 0, 0)));
         addMouseListener(this);
         addMouseMotionListener(this);

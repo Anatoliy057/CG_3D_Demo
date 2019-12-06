@@ -79,9 +79,9 @@ public class Vector3 implements Vector {
 
     public Vector3 add(Vector v) {
         return new Vector3(
-                crd[0] + v.at(1),
+                crd[0] + v.at(0),
                 crd[1] +  v.at(1),
-                crd[2] +  v.at(1)
+                crd[2] +  v.at(2)
         );
     }
 
