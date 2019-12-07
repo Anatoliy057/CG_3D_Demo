@@ -9,8 +9,6 @@ import stud.task.cg.model.Model;
 import java.awt.*;
 import java.util.Collection;
 
-import static stud.task.cg.math.VectorUtil.*;
-
 public class DiffuseLight implements Light, Model {
 
     private Vector4 position;
@@ -22,29 +20,13 @@ public class DiffuseLight implements Light, Model {
         this.position = new Vector4(position);
         this.color = color;
         this.radius = radius;
-        cube = new Cube(position, color, a);
+        cube = new Cube(position, color, a, false);
     }
 
     @Override
     public void light(Contour c) {
-        if (c.isEmpty() || !c.isClose()) return;
-
-        Vector3 contourNormal = c.getNormal();
-        Vector4 lengthVector4 = position.add(c.getPosition());
-        Vector3 lightNormal = normalize(lengthVector4.toVector3());
-
-        double dot = dot(lightNormal, contourNormal);
-        if (dot <= 0) {
-            return;
-        }
-
-        double length = module(lengthVector4);
-        if (length > radius) return;
-
-        double ratio = dot * ((Math.pow((radius - length), 2)) / (Math.pow(radius, 2)));
-        Color color = Light.mix(c.getColor(), this.color, ratio);
-        c.setColor(color);
-        c.getVertices().forEach(v -> v.setColor(color));
+        double ratio = LightUtil.ratio(c.getNormal(), position.add(c.getPosition().negative()), radius);
+        c.setColor(LightUtil.mix(c.getColor(), this.color, ratio));
     }
 
 
@@ -53,12 +35,30 @@ public class DiffuseLight implements Light, Model {
         return cube.getContours();
     }
 
+    @Override
     public Vector4 getPosition() {
         return position;
     }
 
+    @Override
     public void setPosition(Vector4 vector4) {
         position = new Vector4(vector4);
         cube.setPosition(position);
+    }
+
+    @Override
+    public void setColor(Color c) {
+        this.color = c;
+        cube.setColor(c);
+    }
+
+    @Override
+    public Color getColor() {
+        return color;
+    }
+
+    @Override
+    public TypeLight getType() {
+        return TypeLight.DIFF;
     }
 }

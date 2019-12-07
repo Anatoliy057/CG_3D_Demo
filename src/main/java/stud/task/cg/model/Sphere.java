@@ -49,7 +49,6 @@ public class Sphere implements Model {
                             center.getY(),
                             center.getZ() - radius
                     ), color);
-                    System.out.println(v);
                     for (int k = 0; k <= m - 1; k++) {
                         l.add(v);
                     }
@@ -97,11 +96,6 @@ public class Sphere implements Model {
        return contours;
     }
 
-    @Override
-    public Collection<Contour> getPolygons() {
-        return contours;
-    }
-
     private List<Contour> createContours(float n, float m) {
         createVertexes(n,m);
         List<Contour> contours = new LinkedList<>();
@@ -131,11 +125,7 @@ public class Sphere implements Model {
             }
         }
 
-        contours.forEach(c -> {
-            c.getVertices().forEach(v -> v.addNormalOfContour(c.getNormal()));
-        });
-
-        contours.forEach(c -> c.getVertices().forEach(Vertex::calNormal));
+        Contour.setUpNormals(contours);
 
         return contours;
     }

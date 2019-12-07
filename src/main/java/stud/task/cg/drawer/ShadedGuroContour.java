@@ -3,7 +3,7 @@ package stud.task.cg.drawer;
 import javafx.util.Pair;
 import stud.task.cg.domain.Contour;
 import stud.task.cg.domain.Vertex;
-import stud.task.cg.math.Vector4;
+import stud.task.cg.light.TypeLight;
 import stud.task.cg.thirdDimention.ScreenConverter;
 import stud.task.cg.thirdDimention.ScreenPoint;
 
@@ -13,7 +13,7 @@ import java.awt.image.BufferedImage;
 import java.util.*;
 import java.util.List;
 
-public class ShadedTriangle extends ShadedContour {
+public class ShadedGuroContour extends AbstractShadedContour {
 
     @Override
     public void drawTriangle(BufferedImage bi, ScreenConverter sc, Contour triangle) {
@@ -100,14 +100,5 @@ public class ShadedTriangle extends ShadedContour {
                 bi.setRGB(x, y, color.getRGB());
             }
         }
-        Graphics2D gr = (Graphics2D) bi.getGraphics();
-//        points.forEach(p -> {
-//            ScreenPoint sp = p.getValue();
-//            gr.setColor(Color.ORANGE);
-//            gr.fillOval(sp.getI(), sp.getJ(), 10, 10);
-//            ScreenPoint sp1 = sc.r2s(p.getKey().getPosition().add(new Vector4(p.getKey().getNormal())).toVector3());
-//            gr.setColor(Color.RED);
-//            gr.drawLine(sp.getI(), sp.getJ(), sp1.getI(), sp1.getJ());
-//        });
     }
 }

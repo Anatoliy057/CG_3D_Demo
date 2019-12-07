@@ -102,6 +102,14 @@ public class Contour implements Iterable<Vertex>  {
         return Optional.of(new Contour(vertices, contour.getNormal(), contour.getColor(), contour.isClose() && vertices.size() > 2));
     }
 
+    public static void setUpNormals(List<Contour> contours) {
+        contours.forEach(c -> {
+            c.getVertices().forEach(v -> v.addNormalOfContour(c.getNormal()));
+        });
+
+        contours.forEach(c -> c.getVertices().forEach(Vertex::calNormal));
+    }
+
     public List<Vertex> getVertices() {
         return vertices;
     }
@@ -115,6 +123,7 @@ public class Contour implements Iterable<Vertex>  {
     }
 
     public void setColor(Color color) {
+        vertices.forEach(v -> v.setColor(color));
         this.color = color;
     }
 
@@ -156,9 +165,12 @@ public class Contour implements Iterable<Vertex>  {
     }
 
     public Iterator<Vertex> closeIterator() {
-        List<Vertex> list = new LinkedList<>(vertices);
-        list.add(vertices.get(0));
-        return list.iterator();
+        if (isClose()) {
+            List<Vertex> list = new LinkedList<>(vertices);
+            list.add(vertices.get(0));
+            return list.iterator();
+        } else
+            return iterator();
     }
 
     public void abg() {

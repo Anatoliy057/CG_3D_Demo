@@ -15,10 +15,10 @@ public class Cube implements Model {
 
     private List<Contour> contours;
 
-    public Cube(Vector4 position, Color color, double a) {
+    public Cube(Vector4 position, Color color, double a, boolean close) {
         this.position = position;
         this.color = color;
-        contours = createContours(a/2);
+        contours = createContours(a/2, close);
     }
 
     @Override
@@ -50,12 +50,7 @@ public class Cube implements Model {
         return contours;
     }
 
-    @Override
-    public Collection<Contour> getPolygons() {
-        return contours;
-    }
-
-    private List<Contour> createContours(double a) {
+    private List<Contour> createContours(double a, boolean close) {
         List<Contour> contours = new LinkedList<>();
 
         List<Vertex> vertexList = new ArrayList<>();
@@ -74,7 +69,7 @@ public class Cube implements Model {
                 vertexList.get(5),
                 vertexList.get(4)
         ));
-        contours.add(new Contour(vertices, color, true));
+        contours.add(new Contour(vertices, color, close));
 
         vertices = new LinkedList<>(Arrays.asList(
                 vertexList.get(1),
@@ -82,7 +77,7 @@ public class Cube implements Model {
                 vertexList.get(6),
                 vertexList.get(5)
         ));
-        contours.add(new Contour(vertices, color, true));
+        contours.add(new Contour(vertices, color, close));
 
         vertices = new LinkedList<>(Arrays.asList(
                 vertexList.get(2),
@@ -90,7 +85,7 @@ public class Cube implements Model {
                 vertexList.get(7),
                 vertexList.get(6)
         ));
-        contours.add(new Contour(vertices, color, true));
+        contours.add(new Contour(vertices, color, close));
 
         vertices = new LinkedList<>(Arrays.asList(
                 vertexList.get(3),
@@ -98,7 +93,7 @@ public class Cube implements Model {
                 vertexList.get(4),
                 vertexList.get(7)
         ));
-        contours.add(new Contour(vertices, color, true));
+        contours.add(new Contour(vertices, color, close));
 
         vertices = new LinkedList<>(Arrays.asList(
                 vertexList.get(0),
@@ -106,7 +101,7 @@ public class Cube implements Model {
                 vertexList.get(2),
                 vertexList.get(1)
         ));
-        contours.add(new Contour(vertices, color, true));
+        contours.add(new Contour(vertices, color, close));
 
         vertices = new LinkedList<>(Arrays.asList(
                 vertexList.get(4),
@@ -114,13 +109,9 @@ public class Cube implements Model {
                 vertexList.get(6),
                 vertexList.get(7)
                 ));
-        contours.add(new Contour(vertices, color,true));
+        contours.add(new Contour(vertices, color, close));
 
-        contours.forEach(c -> {
-            c.getVertices().forEach(v -> v.addNormalOfContour(c.getNormal()));
-        });
-
-        contours.forEach(c -> c.getVertices().forEach(Vertex::calNormal));
+        Contour.setUpNormals(contours);
 
         return contours;
     }

@@ -1,6 +1,7 @@
 package stud.task.cg.node;
 
 
+import stud.task.cg.drawer.*;
 import stud.task.cg.light.DiffuseLight;
 import stud.task.cg.light.GouraudLight;
 import stud.task.cg.light.Light;
@@ -21,19 +22,15 @@ public class DrawPanel extends JPanel implements MouseMotionListener, MouseListe
     private ScreenConverter sc;
     private Camera camera;
     private Scene scene;
-    private Light l;
-
-    private boolean cont = true, pol = true;
 
     private ScreenPoint last = null;
 
     public DrawPanel() {
         super();
-        sc = new ScreenConverter(-2, 2, 4, 4, 500, 500);
         camera = new Camera(new Vector4(0, 0, 0), 0, 0, Math.PI/2);
         scene = new Scene();
 
-        //scene.models.add(new Cube(new Vector4(0, 0, 0), Color.WHITE, 4));
+        //scene.put(new Cube(new Vector4(0, 0, 0), Color.WHITE, 4, true));
 /*        scene.models.add(new Line(
                 new Vector4(0, 0, 0),
                 new Vector4(0, 0, 10),
@@ -49,14 +46,14 @@ public class DrawPanel extends JPanel implements MouseMotionListener, MouseListe
                 new Vector4(10, 0, 0),
                 Color.YELLOW
         ));*/
-        GouraudLight l = new GouraudLight(new Vector4(-0, -0, 20), Color.BLUE, 100, 1);
-        scene.lights.add(l);
-        //scene.models.add(l);
-        l = new GouraudLight(new Vector4(10, 0, 20), Color.RED, 100, 1);
-        this.l = l;
-        scene.lights.add(l);
-        //scene.models.add(l);
-        scene.models.add(new Sphere(Color.WHITE, 20, 20, 5, new Vector4(0, 0, 0)));
+        GouraudLight l = new GouraudLight(new Vector4(-0, -0, 20), Color.RED, 100, 1);
+        scene.put((Light) l);
+//        //scene.models.add(l);
+        l = new GouraudLight(new Vector4(10, 0, 20), Color.BLUE, 100, 5);
+//        this.l = l;
+        scene.put((Light) l);
+//        //scene.models.add(l);
+        scene.put(new Sphere(Color.WHITE, 20, 20, 5, new Vector4(0, 0, 0)));
         addMouseListener(this);
         addMouseMotionListener(this);
         addKeyListener(this);
@@ -65,11 +62,19 @@ public class DrawPanel extends JPanel implements MouseMotionListener, MouseListe
     @Override
     public void paint(Graphics g) {
         super.paint(g);
+        sc = new ScreenConverter(-2, 2, 4, 4, getWidth(), getHeight());
         BufferedImage bi = new BufferedImage(sc.getWs(), sc.getHs(), BufferedImage.TYPE_INT_RGB);
-        if (pol)
-            bi = scene.drawScene(bi, sc, camera, TypeVision.POLYGON);
-        if (cont)
-            bi = scene.drawScene(bi, sc, camera, TypeVision.CONTOUR);
+        Graphics gr = bi.getGraphics();
+        gr.setColor(Color.BLACK);
+        gr.fillRect(0, 0, bi.getWidth(), bi.getHeight());
+
+        scene.drawScene(new FrameDrawer(),
+                bi,
+                camera,
+                v -> Math.abs(v.getZ()) <= 1 && Math.abs(v.getX()) <= 2 && Math.abs(v.getY()) <= 2,
+                sc
+        );
+
         bi.getGraphics().dispose();
         g.drawImage(bi, 0, 0, null);
     }
@@ -133,14 +138,6 @@ public class DrawPanel extends JPanel implements MouseMotionListener, MouseListe
             }
             case '2': {
                 newPos = new Vector4(0, 0, -1);
-                break;
-            }
-            case 'p' : {
-                pol = !pol;
-                break;
-            }
-            case  'c' : {
-                cont = !cont;
                 break;
             }
         }

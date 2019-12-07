@@ -23,7 +23,7 @@ public class GouraudLight implements Light, Model {
         this.position = new Vector4(position);
         this.color = color;
         this.radius = radius;
-        cube = new Cube(position, color, a);
+        cube = new Cube(position, color, a, false);
     }
 
     @Override
@@ -32,20 +32,8 @@ public class GouraudLight implements Light, Model {
     }
 
     private void calColorVertex(Vertex v) {
-        Vector3 vertexNormal = v.getNormal();
-        Vector4 lengthVector4 = position.add(v.getPosition());
-        Vector3 lightNormal = normalize(lengthVector4.toVector3());
-
-        double dot = dot(lightNormal, vertexNormal);
-        if (dot <= 0) {
-            return;
-        }
-
-        double length = module(lengthVector4);
-        if (length > radius) return;
-
-        double ratio = dot * ((Math.pow((radius - length), 2)) / (Math.pow(radius, 2)));
-        v.setColor(Light.mix(v.getColor(), this.color, ratio));
+        double ratio = LightUtil.ratio(v.getNormal(), position.add(v.getPosition()), radius);
+        v.setColor(LightUtil.mix(v.getColor(), this.color, ratio));
     }
 
     @Override
@@ -53,12 +41,29 @@ public class GouraudLight implements Light, Model {
         return cube.getContours();
     }
 
+    @Override
     public Vector4 getPosition() {
         return position;
     }
 
+    @Override
     public void setPosition(Vector4 vector4) {
         position = new Vector4(vector4);
         cube.setPosition(position);
+    }
+
+    @Override
+    public void setColor(Color c) {
+        color = c;
+    }
+
+    @Override
+    public Color getColor() {
+        return color;
+    }
+
+    @Override
+    public TypeLight getType() {
+        return TypeLight.GURO;
     }
 }

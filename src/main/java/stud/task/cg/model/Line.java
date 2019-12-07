@@ -54,9 +54,4 @@ public class Line implements Model{
                 new Vertex(end, c)
         ), c, false));
     }
-
-    @Override
-    public Collection<Contour> getPolygons() {
-        return Collections.emptyList();
-    }
 }

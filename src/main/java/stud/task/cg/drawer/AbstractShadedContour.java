@@ -3,24 +3,45 @@ package stud.task.cg.drawer;
 import stud.task.cg.domain.Contour;
 import stud.task.cg.domain.Vertex;
 import stud.task.cg.light.Light;
+import stud.task.cg.light.LightUtil;
+import stud.task.cg.light.TypeLight;
+import stud.task.cg.math.Vector4;
+import stud.task.cg.thirdDimention.Camera;
 import stud.task.cg.thirdDimention.ScreenConverter;
+import stud.task.cg.thirdDimention.ScreenPoint;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.*;
 import java.util.List;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
-public abstract class ShadedContour implements DrawerContour {
+public abstract class AbstractShadedContour implements Drawer3D {
+
+    private TypeLight t = TypeLight.GURO;
 
     @Override
-    public void draw(BufferedImage bi, ScreenConverter sc, Contour c) {
-        if (c.isClose()) {
-            Collection<Contour> triangles = toTriangle(c);
-            triangles.forEach(triangle -> drawTriangle(bi, sc, triangle));
-        } else {
-            return;
-        }
+    public void draws(BufferedImage bi, List<Contour> c, Camera camera, Predicate<Vector4> predicate, ScreenConverter sc, List<Light> lightList) {
+        List<Light> lights = lightList.stream().filter(l -> l.getType() == t).collect(Collectors.toList());
+        c = c
+                .stream()
+                .filter(Contour::isClose)
+                .peek(contour -> lights.forEach(l -> l.light(contour)))
+                .map(cont -> Contour.conversionDeep(cont, predicate, camera::w2c))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .filter(Contour::isClose)
+                .sorted(Comparator.comparingDouble(contour -> -contour.getPosition().getZ()))
+                .collect(Collectors.toList());
+        c.forEach(contour -> draw(bi, contour, sc));
     }
+
+    private void draw(BufferedImage bi, Contour c, ScreenConverter sc) {
+        Collection<Contour> triangles = toTriangle(c);
+        triangles.forEach(triangle -> drawTriangle(bi, sc, triangle));
+    }
+
 
     protected abstract void drawTriangle(BufferedImage bi, ScreenConverter sc, Contour triangle);
 
@@ -41,7 +62,7 @@ public abstract class ShadedContour implements DrawerContour {
         double dt = 1.0 / colors.length;
         for (int i = 0; i < colors.length; i++) {
             double brightness = dt * i;
-            colors[i] = Light.mix(c0, c1, brightness);
+            colors[i] = LightUtil.mix(c0, c1, brightness);
         }
         colors[colors.length-1] = c1;
         return colors;
