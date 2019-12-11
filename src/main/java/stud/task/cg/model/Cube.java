@@ -7,8 +7,9 @@ import stud.task.cg.math.Vector4;
 import java.awt.*;
 import java.util.*;
 import java.util.List;
+import java.util.stream.Collectors;
 
-public class Cube implements Model {
+public class Cube implements Model, Move {
 
     private Vector4 position;
     private Color color;
@@ -28,7 +29,13 @@ public class Cube implements Model {
 
     @Override
     public void setPosition(Vector4 position) {
-        this.position = position;
+        Vector4 diff = position.add(this.position.negative());
+        this.position = new Vector4(position);
+        contours = contours.stream()
+                .map(c -> Contour.conversionDeep(c, v -> true, v -> v.add(diff)))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+        .collect(Collectors.toList());
     }
 
     @Override

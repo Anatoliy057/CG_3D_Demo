@@ -8,17 +8,18 @@ import stud.task.cg.math.Vector4;
 import java.awt.*;
 import java.util.*;
 import java.util.List;
+import java.util.stream.Collectors;
 
-public class Sphere implements Model {
+public class Sphere implements Model, Move {
 
     private List<List<Vertex>> vertex = new ArrayList<>();
-    private float radius;
+    private double radius;
     private Color color;
     private Vector4 center;
 
     private List<Contour> contours;
 
-    public Sphere(Color color, int n, int m, float radius, Vector4 center) {
+    public Sphere(Color color, int n, int m, double radius, Vector4 center) {
         this.color = color;
         this.radius = radius;
         this.center = center;
@@ -68,12 +69,13 @@ public class Sphere implements Model {
 
     @Override
     public void setPosition(Vector4 pos) {
-        center = pos;
-        List<Contour> contours = new LinkedList<>();
-        this.contours.forEach(
-                contour -> contours.add(Contour.conversionDeep(contour, v -> v.add(pos)))
-        );
-        this.contours = contours;
+        Vector4 diff = pos.add(center.negative());
+        center = new Vector4(pos);
+        contours = contours.stream()
+                .map(c -> Contour.conversionDeep(c, v -> true, v -> v.add(diff)))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toList());
     }
 
     @Override

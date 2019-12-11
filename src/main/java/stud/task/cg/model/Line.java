@@ -10,7 +10,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
-public class Line implements Model{
+public class Line implements Model, Move{
 
     private Vector4 start, end;
     private Color c;

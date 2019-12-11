@@ -19,11 +19,15 @@ import java.util.stream.Collectors;
 
 public abstract class AbstractShadedContour implements Drawer3D {
 
-    private TypeLight t = TypeLight.GURO;
+
+    protected List<TypeLight> ts;
 
     @Override
     public void draws(BufferedImage bi, List<Contour> c, Camera camera, Predicate<Vector4> predicate, ScreenConverter sc, List<Light> lightList) {
-        List<Light> lights = lightList.stream().filter(l -> l.getType() == t).collect(Collectors.toList());
+        List<Light> lights = lightList.stream()
+                .filter(l -> ts.contains(l.getType()))
+                .sorted(Comparator.comparing(Light::getType).reversed())
+                .collect(Collectors.toList());
         c = c
                 .stream()
                 .filter(Contour::isClose)

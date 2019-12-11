@@ -15,6 +15,12 @@ import java.util.List;
 
 public class ShadedGuroContour extends AbstractShadedContour {
 
+    public ShadedGuroContour() {
+        ts = new LinkedList<>();
+        ts.add(TypeLight.GURO);
+        ts.add(TypeLight.WORLD);
+    }
+
     @Override
     public void drawTriangle(BufferedImage bi, ScreenConverter sc, Contour triangle) {
         List<Vertex> vertexList = triangle.getVertices();

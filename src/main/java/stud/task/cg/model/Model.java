@@ -5,7 +5,7 @@ import stud.task.cg.domain.Contour;
 import java.awt.*;
 import java.util.Collection;
 
-public interface Model extends Move {
+public interface Model {
 
     Collection<Contour> getContours();
 

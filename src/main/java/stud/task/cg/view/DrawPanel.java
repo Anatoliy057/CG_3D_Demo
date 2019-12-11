@@ -1,74 +1,62 @@
-package stud.task.cg.node;
+package stud.task.cg.view;
 
 
-import stud.task.cg.drawer.*;
-import stud.task.cg.light.DiffuseLight;
-import stud.task.cg.light.GouraudLight;
-import stud.task.cg.light.Light;
+import stud.task.cg.command.Commander;
 import stud.task.cg.math.Vector3;
 import stud.task.cg.math.Vector4;
-import stud.task.cg.model.Cube;
-import stud.task.cg.model.Line;
-import stud.task.cg.model.Sphere;
 import stud.task.cg.thirdDimention.*;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
+import java.util.HashSet;
+import java.util.Set;
 
 public class DrawPanel extends JPanel implements MouseMotionListener, MouseListener, KeyListener {
 
     private ScreenConverter sc;
     private Camera camera;
     private Scene scene;
+    private Commander commander;
+
+    private Set<Integer> codes = new HashSet<>();
 
     private ScreenPoint last = null;
 
-    public DrawPanel() {
+    public DrawPanel(Scene scene, Commander commander) {
         super();
-        camera = new Camera(new Vector4(0, 0, 0), 0, 0, Math.PI/2);
-        scene = new Scene();
+        camera = new Camera(new Vector4(0, 0, 0), 0, 0, Math.PI / 2);
+        this.scene = scene;
+        this.commander = commander;
 
-        //scene.put(new Cube(new Vector4(0, 0, 0), Color.WHITE, 4, true));
-/*        scene.models.add(new Line(
-                new Vector4(0, 0, 0),
-                new Vector4(0, 0, 10),
-                Color.RED
-        ));
-        scene.models.add(new Line(
-                new Vector4(0, 0, 0),
-                new Vector4(0, 10, 0),
-                Color.BLUE
-        ));
-        scene.models.add(new Line(
-                new Vector4(0, 0, 0),
-                new Vector4(10, 0, 0),
-                Color.YELLOW
-        ));*/
-        GouraudLight l = new GouraudLight(new Vector4(-0, -0, 20), Color.RED, 100, 1);
-        scene.put((Light) l);
-//        //scene.models.add(l);
-        l = new GouraudLight(new Vector4(10, 0, 20), Color.BLUE, 100, 5);
-//        this.l = l;
-        scene.put((Light) l);
-//        //scene.models.add(l);
-        scene.put(new Sphere(Color.WHITE, 20, 20, 5, new Vector4(0, 0, 0)));
         addMouseListener(this);
         addMouseMotionListener(this);
         addKeyListener(this);
+        addFocusListener(new FocusListener() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                setFocusable(true);
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
+                setFocusable(true);
+            }
+        });
     }
 
     @Override
     public void paint(Graphics g) {
         super.paint(g);
+        setPreferredSize(new Dimension(getParent().getWidth() / 2, getParent().getHeight()));
         sc = new ScreenConverter(-2, 2, 4, 4, getWidth(), getHeight());
         BufferedImage bi = new BufferedImage(sc.getWs(), sc.getHs(), BufferedImage.TYPE_INT_RGB);
         Graphics gr = bi.getGraphics();
         gr.setColor(Color.BLACK);
         gr.fillRect(0, 0, bi.getWidth(), bi.getHeight());
 
-        scene.drawScene(new FrameDrawer(),
+        scene.drawScene(
                 bi,
                 camera,
                 v -> Math.abs(v.getZ()) <= 1 && Math.abs(v.getX()) <= 2 && Math.abs(v.getY()) <= 2,
@@ -81,7 +69,7 @@ public class DrawPanel extends JPanel implements MouseMotionListener, MouseListe
 
     @Override
     public void mouseClicked(MouseEvent e) {
-
+        requestFocusInWindow();
     }
 
     @Override
@@ -106,6 +94,7 @@ public class DrawPanel extends JPanel implements MouseMotionListener, MouseListe
 
     @Override
     public void mouseDragged(MouseEvent e) {
+        requestFocusInWindow();
         ScreenPoint np = new ScreenPoint(e.getX(), e.getY());
         if (last != null) {
             int dx = np.getI() - last.getI();
@@ -148,6 +137,7 @@ public class DrawPanel extends JPanel implements MouseMotionListener, MouseListe
     @Override
     public void keyPressed(KeyEvent e) {
         Vector4 newPos = Vector4.empty();
+        codes.add(e.getKeyCode());
         switch (e.getKeyCode()) {
             case 37: {
                 newPos = new Vector4(0, 1, 0);
@@ -165,6 +155,18 @@ public class DrawPanel extends JPanel implements MouseMotionListener, MouseListe
                 newPos = new Vector4(1, 0, 0);
                 break;
             }
+            case 90 : {
+                if (codes.contains(17)) {
+                    commander.prev();
+                }
+                break;
+            }
+            case 88: {
+                if (codes.contains(17)) {
+                    commander.future();
+                }
+                break;
+            }
         }
         camera.addPos(newPos);
         repaint();
@@ -172,6 +174,6 @@ public class DrawPanel extends JPanel implements MouseMotionListener, MouseListe
 
     @Override
     public void keyReleased(KeyEvent e) {
-
+        codes.remove(e.getKeyCode());
     }
 }

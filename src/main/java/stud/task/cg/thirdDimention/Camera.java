@@ -1,7 +1,15 @@
 package stud.task.cg.thirdDimention;
 
+import stud.task.cg.domain.Contour;
 import stud.task.cg.domain.Vertex;
 import stud.task.cg.math.*;
+import stud.task.cg.model.Line;
+import stud.task.cg.model.Model;
+
+import java.awt.*;
+import java.util.Collection;
+
+import static stud.task.cg.math.MatrixUtil.*;
 
 public class Camera {
 
@@ -89,11 +97,13 @@ public class Camera {
     }
 
     public void addPos(Vector4 pos) {
-        translate = translate.add(pos);
+        this.pos = this.pos.add(pos);
+        translate = translate.add(pos.negative());
     }
 
     public void setPos(Vector4 pos) {
-        translate = new MatrixTransfer(pos);
+        this.pos = new Vector4(pos);
+        translate = new MatrixTransfer(pos.negative());
     }
 
     public double getFovy() {

@@ -2,27 +2,28 @@ package stud.task.cg.light;
 
 import stud.task.cg.domain.Contour;
 import stud.task.cg.domain.Vertex;
-import stud.task.cg.math.Vector3;
 import stud.task.cg.math.Vector4;
 import stud.task.cg.model.Cube;
 import stud.task.cg.model.Model;
+import stud.task.cg.model.Move;
 
 import java.awt.*;
 import java.util.Collection;
 
-import static stud.task.cg.math.VectorUtil.*;
-
-public class GouraudLight implements Light, Model {
+public class GouraudLight implements Light, Model, Move {
 
     private Vector4 position;
     private Color color;
     private Cube cube;
     private double radius;
+    private double k;
 
-    public GouraudLight (Vector4 position, Color color, double radius, double a) {
-        this.position = new Vector4(position);
+    public GouraudLight(Vector4 position, Color color, double a, double radius, double k) {
+        this.position = position;
         this.color = color;
         this.radius = radius;
+        this.k = k;
+
         cube = new Cube(position, color, a, false);
     }
 
@@ -33,7 +34,7 @@ public class GouraudLight implements Light, Model {
 
     private void calColorVertex(Vertex v) {
         double ratio = LightUtil.ratio(v.getNormal(), position.add(v.getPosition()), radius);
-        v.setColor(LightUtil.mix(v.getColor(), this.color, ratio));
+        v.setColor(LightUtil.mix(v.getColor(), this.color, ratio * k));
     }
 
     @Override
@@ -65,5 +66,26 @@ public class GouraudLight implements Light, Model {
     @Override
     public TypeLight getType() {
         return TypeLight.GURO;
+    }
+
+    @Override
+    public double getRadius() {
+        return radius;
+    }
+
+    @Override
+    public void setRadius(double radius) {
+        this.radius = radius;
+    }
+
+    @Override
+    public double getK() {
+        return k;
+    }
+
+    @Override
+    public void setK(double k) {
+        if (k < 0 || k > 1) throw new ArithmeticException("K must be in [0,1], then: " + k);
+        this.k = k;
     }
 }

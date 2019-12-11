@@ -10,21 +10,28 @@ import stud.task.cg.thirdDimention.ScreenPoint;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.util.Comparator;
-import java.util.Iterator;
+import java.util.*;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class SolidContour implements Drawer3D {
 
-    private TypeLight t = TypeLight.DIFF;
+    private List<TypeLight> ts;
+
+    public SolidContour() {
+        ts = new LinkedList<>();
+        ts.add(TypeLight.DIFF);
+        ts.add(TypeLight.WORLD);
+    }
 
     @Override
     public void draws(BufferedImage bi, List<Contour> c, Camera camera, Predicate<Vector4> predicate, ScreenConverter sc, List<Light> lightList) {
-        List<Light> lights = lightList.stream().filter(l -> l.getType() == t).collect(Collectors.toList());
+        List<Light> lights = lightList.stream()
+                .filter(l -> ts.contains(l.getType()))
+                .sorted(Comparator.comparing(Light::getType).reversed())
+                .collect(Collectors.toList());
         c = c
                 .stream()
                 .filter(Contour::isClose)
